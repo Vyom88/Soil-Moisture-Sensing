@@ -97,6 +97,17 @@ int main(void)
 
   HAL_ADC_Start(&hadc1);
     readValue = 0;
+    int count = 0;
+
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	GPIO_InitStruct.Pin = GPIO_PIN_5;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE END 2 */
 
@@ -107,11 +118,23 @@ int main(void)
     /* USER CODE END WHILE */
 		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 10);
-		if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK) {
-			readValue = HAL_ADC_GetValue(&hadc1);
-			printf("%d\n", readValue);
+
+		readValue = HAL_ADC_GetValue(&hadc1);
+		printf("%d\n", readValue);
+
+		if (readValue > 2050) {
+		  count++;
+		}
+		else {
+		  count = 0;
 		}
 
+		if (count == 15) {
+		  count = 0;
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_Delay(8000);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+		}
 
 		HAL_Delay(300);
     /* USER CODE BEGIN 3 */
